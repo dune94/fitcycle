@@ -1,0 +1,396 @@
+<div fxLayout="row" fxLayoutAlign="space-evenly start" class="laps">
+  <img src="assets/images/fitcyclesmall.png">
+  <mat-form-field class="laps-form-field" fxFlex="28%">
+    <mat-label class="laps-dropdown-label">Laps</mat-label>
+    <mat-select [(ngModel)]="selectedLap"
+      (ngModelChange)="onLapsSelected()">
+      <mat-option class="laps-dropdown-options" *ngFor="let lap of laps" [value]="lap">
+        {{ lap.DropDown }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<div fxLayout="row" fxLayoutAlign="start center" class="cards" fxLayoutGap="16px">
+  
+  <mat-card class="cal-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Calories</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.Calories }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="distance-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Distance</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.DistanceKms }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="duration-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Duration</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.TotalTimeMinutes }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="averagehr-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Average HR</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.AverageHr }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="fastest-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Fastest Speed</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.FastestSpeed }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-footer>
+      <div class="res-sm-circle-outer">
+        <div class="res-sm-circle">
+          <div class="sm-circle-txt">
+            {{ selectedLap?.FastestSpeedMarker }}
+          </div>
+        </div>
+      </div>
+    </mat-card-footer>
+
+  </mat-card>
+
+  <mat-card class="fastestkm-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Fastest KM</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.FastestKm }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-footer>
+      <div class="res-sm-circle-outer">
+        <div class="res-sm-circle">
+          <div class="sm-circle-txt">
+            {{ selectedLap?.FastestKmMarker }}
+          </div>
+        </div>
+      </div>
+    </mat-card-footer>
+
+  </mat-card>
+
+  <mat-card class="highesthr-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h3>Highest HR</h3>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.HighestHr }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-footer>
+      <div class="res-sm-circle-outer">
+        <div class="res-sm-circle">
+          <div class="sm-circle-txt">
+            {{ selectedLap?.HighestHrMarker }}
+          </div>
+        </div>
+      </div>
+    </mat-card-footer>
+
+  </mat-card>
+
+</div>
+
+<div fxLayout="row" fxLayoutAlign="start center" class="cards" fxLayoutGap="16px">
+
+  <mat-card class="cal-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showCalories">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Calories Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!calcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="caloryChart.type"  
+          [data]="caloryChart.data"  
+          [options]="caloryChart.options"  
+          [width]="caloryChart.width"  
+          [height]="caloryChart.height">  
+        </google-chart> 
+      </div> 
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="caloriesShow()">Show</button>
+      <button mat-button (click)="caloriesHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="distance-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showDistance">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Distance Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!distcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="distanceChart.type"  
+          [data]="distanceChart.data"  
+          [options]="distanceChart.options"  
+          [width]="distanceChart.width"  
+          [height]="distanceChart.height">  
+        </google-chart>  
+      </div>
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="distanceShow()">Show</button>
+      <button mat-button (click)="distanceHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="duration-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showDuration">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Duration Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!durcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="durationChart.type"  
+          [data]="durationChart.data"  
+          [options]="durationChart.options"  
+          [width]="durationChart.width"  
+          [height]="durationChart.height"  
+          >  
+        </google-chart> 
+      </div> 
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="durationShow()">Show</button>
+      <button mat-button (click)="durationHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="averagehr-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showAverageHr">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Average HR Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!avghrcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="averagehrChart.type"  
+          [data]="averagehrChart.data"  
+          [options]="averagehrChart.options"  
+          [width]="averagehrChart.width"  
+          [height]="averagehrChart.height">  
+        </google-chart>  
+      </div>
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="averageHrShow()">Show</button>
+      <button mat-button (click)="averageHrHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="fastest-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showFastest">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Fastest Speed Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!fastcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="fastestChart.type"  
+          [data]="fastestChart.data"  
+          [options]="fastestChart.options"  
+          [width]="fastestChart.width"  
+          [height]="fastestChart.height">  
+        </google-chart>
+      </div>  
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="fastestShow()">Show</button>
+      <button mat-button (click)="fastestHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="fastestkm-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showFastestKm">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Fastest Km Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!fastkmcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="fastestkmChart.type"  
+          [data]="fastestkmChart.data"  
+          [options]="fastestkmChart.options"  
+          [width]="fastestkmChart.width"  
+          [height]="fastestkmChart.height">  
+        </google-chart>  
+      </div>
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="fastestKmShow()">Show</button>
+      <button mat-button (click)="fastestKmHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="highesthr-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showHighestHr">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Highest HR Graph</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!highhrcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="highesthrChart.type"  
+          [data]="highesthrChart.data"  
+          [options]="highesthrChart.options"  
+          [width]="highesthrChart.width"  
+          [height]="highesthrChart.height">  
+        </google-chart>  
+      </div>
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="highestHrShow()">Show</button>
+      <button mat-button (click)="highestHrHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+</div>
+
+<agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom">
+  <ng-container>
+    <agm-polyline *ngFor="let path of paths ;let i = index;" [strokeColor]="path.color">
+      <agm-icon-sequence [fixedRotation]="true" [path]="path.icon"></agm-icon-sequence>
+      <agm-polyline-point *ngFor="let point of path.point" [latitude]="point.latitude" [longitude]="point.longitude">
+        <div *ngIf="point.fastest">
+          <agm-circle [latitude]="point.latitude" [longitude]="point.longitude" [fillOpacity]="0.3" [radius]="400" [fillColor]="path.color"></agm-circle>
+            <agm-marker 
+              [latitude]="point.latitude"
+              [longitude]="point.longitude"
+              [iconUrl]="point.icon"
+              [label]="{fontFamily: 'Helvetica',fontSize: '12px',fontWeight: 'bold',text: point.speed,color: '#FDF503'}">
+              <agm-info-window>
+                <strong>Maximum Speed km/h</strong>
+              </agm-info-window>
+    
+            </agm-marker>
+        </div>
+      </agm-polyline-point>
+    </agm-polyline>
+  </ng-container>
+</agm-map>

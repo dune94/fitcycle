@@ -1,0 +1,17 @@
+{
+    "/api/httptriggerqueryfitbitpolylinesapi": {
+    "target": "http://host.docker.internal:8080",
+    "secure": false,
+    "logLevel": "debug"
+    },
+    "/api/httptriggerqueryfitbitlapsapi": {
+    "target": "http://host.docker.internal:8080",
+    "secure": false,
+    "logLevel": "debug"
+    },
+    "/api/httptriggerfitbitqueryloadapi": {
+    "target": "http://host.docker.internal:8080",
+    "secure": false,
+    "logLevel": "debug"
+    }
+}

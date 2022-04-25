@@ -1,0 +1,279 @@
+@import url("https://fonts.googleapis.com/css?family=Titillium+Web:400,400i,700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
+
+agm-map {
+    height: 700px;
+}
+
+body {
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  line-height: 1.4;
+  color: #161b1e;
+  background: #FFF030 ;
+}
+
+.content {
+    padding: 16px;
+}
+
+.content > mat-card {
+    width: 200px;
+}
+
+.laps {
+  background: #FFF030 ;
+}
+
+.cards {
+  background: #FFF030 ;
+}
+
+.laps {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+}
+
+.laps-form-field {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+}
+
+.laps-dropdown-label {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+}
+
+.laps-dropdown-options {
+  background: #FFF030  !important;
+  font-family: "Titillium Web", sans-serif !important;;
+  font-weight: bold !important;;
+  font-size: xx-large !important;;
+}
+
+.cal-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.cal-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.distance-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.distance-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.duration-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.duration-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.fastest-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.fastest-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.fastestkm-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.fastestkm-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.highesthr-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.highesthr-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.averagehr-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.averagehr-chart-card {
+  background: #FFF030 ;
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+  padding: 16px;
+}
+
+.res-circle-outer {
+  /* (A) PERCENTAGE WIDTH & BORDER RADIUS */
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: 0 auto;
+
+  /* (B) BACKGROUND COLOR */ 
+  background: #5EB2B3;
+  position: relative;
+  /* (C) NECESSARY TO POSITION TEXT BLOCK */
+}
+
+.res-circle {
+  /* (A) PERCENTAGE WIDTH & BORDER RADIUS */
+  /*width: 20%;*/
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  top:calc(50% - (120px / 2)); 
+  left:calc(50% - (120px / 2));
+  margin: 0 auto;
+
+  /* (B) BACKGROUND COLOR */ 
+  background: #FFF030 ;
+ 
+  /* (C) NECESSARY TO POSITION TEXT BLOCK */
+  line-height: 0;
+  position: absolute;
+}
+
+/* (D) MATCH HEIGHT */
+.res-circle::after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+
+/* (E) TEXT BLOCK */      
+.circle-txt {
+  /* (E1) CENTER TEXT IN CIRCLE */
+  position: absolute;
+  bottom: 50%;
+  width: 100%;
+  text-align: center;
+ 
+  /* (E2) THE FONT - NOT REALLY IMPORTANT */
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: xx-large;
+   
+}
+
+.res-sm-circle-outer {
+  /* (A) PERCENTAGE WIDTH & BORDER RADIUS */
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: 0 auto;
+
+  /* (B) BACKGROUND COLOR */ 
+  background: #5EB2B3;
+  position: relative;
+  /* (C) NECESSARY TO POSITION TEXT BLOCK */
+}
+
+.res-sm-circle {
+  /* (A) PERCENTAGE WIDTH & BORDER RADIUS */
+  /*width: 20%;*/
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  top:calc(50% - (60px / 2)); 
+  left:calc(50% - (60px / 2));
+  margin: 0 auto;
+
+  /* (B) BACKGROUND COLOR */ 
+  background: #FFF030 ;
+ 
+  /* (C) NECESSARY TO POSITION TEXT BLOCK */
+  line-height: 0;
+  position: absolute;
+}
+
+/* (D) MATCH HEIGHT */
+.res-sm-circle::after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+
+/* (E) TEXT BLOCK */      
+.sm-circle-txt {
+  /* (E1) CENTER TEXT IN CIRCLE */
+  position: absolute;
+  bottom: 50%;
+  width: 100%;
+  text-align: center;
+ 
+  /* (E2) THE FONT - NOT REALLY IMPORTANT */
+  font-family: "Titillium Web", sans-serif;
+  font-weight: bold;
+  font-size: large;
+   
+}
+
+
