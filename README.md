@@ -1,6 +1,9 @@
 # fitcycle
 Fitbit cycling dashboard app (MVP)
 
+Link to Video:
+https://www.youtube.com/watch?v=ukVpg2f1Yxg
+
 Local Setup Instructions
 
 Please note this MVP application is running locally on Windows 10, WSL2 Ubuntu.
