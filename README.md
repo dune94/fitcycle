@@ -13,14 +13,20 @@ _Please note this MVP application is running locally on Windows 10, WSL2 Ubuntu.
 
 ### Installs
 
-Docker Desktop was installed.
+Docker Desktop was installed locally.
 
+### Google Cloud Account
+
+A Google Cloud account is required with "Maps JavaScript API" enabled.
+The API Key for this API will be required to set in the Frontend environment variables (see below).
 
 ### Fitbit Developer Account
 
 Setup a new Fitbit developer account (dev.fitbit.com => register an app).
 
-Upon creating a new kdeveloper account and manage an application entry, a new OAuth 2.0 Client ID will be generated. 
+Upon creating a new developer account and manage an application entry, a new OAuth 2.0 Client ID will be generated. 
+This Client ID is required in the environment variables configuration, please see below.
+
 The standard redirect URL for local development is:
 
 http://127.0.0.1:4200/
@@ -139,7 +145,7 @@ Example response:
             "icon": null
           },`
 
-## Environment Variables
+## Environment Variables - Backend (fitbit-functions)
 
 ### Azure Functions Variables
 
@@ -193,4 +199,10 @@ Notes: This client ID variable should be assigned after creating a new Fitbit de
 `FITBIT_ACTIVITIES_LIST_URL=https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2021-10-13&sort=desc&offset=0&limit=100`
 
 `FITBIT_URL=https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=FITBIT_CLIENT_ID&redirect_uri=FITBIT_REDIRECT_URI&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800`
+
+## Environment Variables - Frontend
+
+In ~/angular-maps/angular-google-maps-polyline/src/environments:
+
+Replace apiKey value with Google Cloud account API Key value.
 
