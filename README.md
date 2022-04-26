@@ -13,13 +13,12 @@ _Please note this MVP application is running locally on Windows 10, WSL2 Ubuntu.
 Docker Desktop was installed.
 
 
-### FitBit Developer Account
+### Fitbit Developer Account
 
 Setup a new Fitbit developer account (dev.fitbit.com => register an app).
 
-A new OAuth 2.0 Client ID will be generated. 
-This is necessary for setup in the URL noted below.
-Redirect URL for local development is:
+Upon creating a new kdeveloper account and manage an application entry, a new OAuth 2.0 Client ID will be generated. 
+The standard redirect URL for local development is:
 
 http://127.0.0.1:4200/
 
@@ -28,7 +27,7 @@ http://127.0.0.1:4200/
 
 #### Angular (Frontend)
 
-From ~/angular-maps/angular-google-maps-polyline directory:
+From the ~/angular-maps/angular-google-maps-polyline directory:
 
 First, build the image ==> 
 `docker build -t  angular-google-maps-polyline .`
@@ -39,7 +38,7 @@ Next, run the container ==>
 
 #### Fitbit-Functions (Backend)
 
-These commands are to be run from the `~/fitbit-functions` directory.
+From the `~/fitbit-functions` directory.
 
 First, build the image ==> 
 `docker build -t httptriggerfitbitapi .`
