@@ -1,6 +1,17 @@
 # fitcycle
 # Fitbit cycling dashboard app (MVP)
 
+## Purpose
+
+The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the boilderplate dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. Initially, if no laps data is detected, the fitbit data is ingested into a Cosmos DB set of collections. The data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. The user can then select a lap, and visualize metrics and a google (polyline-based) map that is colour coded to provide speed performance information.   
+
+## Upcoming Changes
+
+1 - Dashboard enhancement - Addition of Watts information
+2 - Map enhancement - Addition of HR and Watts colour coded map (polylines) - the user can select from one of 3 choices, Speed, Watts, or Heart rate
+3 - Map and Dashboard enhancement - Elevation information
+4 - Map filters - to only show the fastest KM, or the steepest part of the ride, etc.
+
 ## Link to Video
 [Application Overview YouTube](https://www.youtube.com/watch?v=ukVpg2f1Yxg)
 
@@ -145,15 +156,15 @@ Example response:
             "icon": null
           },`
 
-## Environment Variables - Backend (fitbit-functions)
+### Environment Variables - Backend (fitbit-functions)
 
-### Azure Functions Variables
+#### Azure Functions Variables
 
 `AzureWebJobsScriptRoot=/home/site/wwwroot`
 
 `AzureFunctionsJobHost__Logging__Console__IsEnabled=true`
 
-### Cosmos Emulator Variables
+#### Cosmos Emulator Variables
 
 `COSMOS_ENDPOINT_URI=https://host.docker.internal:8081` 
 
@@ -175,7 +186,7 @@ Notes: Cosmos DB collections (Root, Lap, Trackpoint) are divided into low and hi
 
 `COSMOS_FAILURE_RETRIES=3` 
 
-### Fitbit Variables
+#### Fitbit Variables
 
 `FITBIT_TOKEN_URL=https://api.fitbit.com/oauth2/token` 
 
@@ -201,9 +212,11 @@ Notes: Currently, this URL variable includes a hard coded afterDate param. A fut
 
 `FITBIT_URL=https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=FITBIT_CLIENT_ID&redirect_uri=FITBIT_REDIRECT_URI&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800`
 
-## Environment Variables - Frontend
+#### Environment Variables - Frontend
 
 In ~/angular-maps/angular-google-maps-polyline/src/environments:
 
 Replace apiKey value with Google Cloud account API Key value.
+
+
 
