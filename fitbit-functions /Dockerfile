@@ -29,6 +29,7 @@ ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     FITBIT_TOKEN_URI=http://127.0.0.1:4200 \
     FITBIT_REDIRECT_URI=http%3A%2F%2F127.0.0.1%3A4200%2F \
     FITBIT_ACTIVITIES_LIST_URL=https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2021-10-13&sort=desc&offset=0&limit=100 \
+    FITBIT_PROFILE_URL=https://api.fitbit.com/1/user/-/profile.json \
     FITBIT_URL=https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=FITBIT_CLIENT_ID&redirect_uri=FITBIT_REDIRECT_URI&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800
 
 

@@ -1,11 +1,7 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
-using System.Threading;
-using System.Text;
-using System.Text.Json;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -13,10 +9,8 @@ using System.Xml.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Fitbit;
 using static FitbitDatabase.FitbitCosmos;
@@ -75,6 +69,29 @@ namespace functions
 
             string fitbitToken = fitbitTokenData?.access_token;
 
+            using var profileClient = new HttpClient();
+            
+            var profileUrl = Environment.GetEnvironmentVariable("FITBIT_PROFILE_URL");
+            
+            profileClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", fitbitToken);
+            profileClient.DefaultRequestHeaders
+                .Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
+
+            JsonUser jsonUser = null;
+            User user = null;
+            if (!profileUrl.Equals(string.Empty))
+            {
+                var userProfileResponse = await profileClient.GetAsync(profileUrl);
+                string userProfileResult = userProfileResponse.Content.ReadAsStringAsync().Result;
+                if (userProfileResponse.IsSuccessStatusCode && userProfileResult != null){
+                    jsonUser = JsonConvert.DeserializeObject<JsonUser>(userProfileResult);
+                    if (jsonUser != null){
+                        user = jsonUser.User;
+                    }
+                }
+            }
+
             using var activitiesListClient = new HttpClient();
             
             var nextUrl = Environment.GetEnvironmentVariable("FITBIT_ACTIVITIES_LIST_URL");
@@ -128,6 +145,13 @@ namespace functions
                     continue;
                 }
             
+                double kgs = 80;
+                double age = 50;
+                if (user != null){
+                    kgs = user.Weight;
+                    age = user.Age;
+                }
+
                 Root rootClass = new Root();
                 rootClass.Id = Guid.NewGuid();
                 rootClass.CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -142,12 +166,12 @@ namespace functions
 
                         using var tcxFileClient = new HttpClient();
 
-                        var txcFileUrl = activitiesFiltered[i].TcxLink;
                         tcxFileClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", fitbitToken);
                         tcxFileClient.DefaultRequestHeaders
                             .Accept
                             .Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
 
+                        var txcFileUrl = activitiesFiltered[i].TcxLink;
                         var tcxFileResponse = await tcxFileClient.GetAsync(txcFileUrl);
                         string tcxFileResult = tcxFileResponse.Content.ReadAsStringAsync().Result;
 
@@ -171,6 +195,7 @@ namespace functions
                                     double fastestKmMarker = 0;
                                     double fastestSpeedMarker = 0;
                                     double highestHrMarker = 0;
+                                    double highestHrMeters = 0;
                                     
                                     Lap lap = new Lap();
                                     lap.Id = Guid.NewGuid();
@@ -182,6 +207,11 @@ namespace functions
                                     lap.DistanceMeters = tcxLap[iv].DistanceMeters;
                                     lap.DistanceKms = tcxLap[iv].DistanceMeters/1000;
                                     lap.Calories = tcxLap[iv].Calories;
+                                    lap.Watts = ( tcxLap[iv].Calories/3.6 ) / ( lap.TotalTimeMinutes/60 );
+                                    lap.AverageSpeed = ( ( tcxLap[iv].DistanceMeters ) * ( 3600 / (lap.TotalTimeSeconds)) ) / 1000;
+                                    if (kgs > 0){
+                                        lap.WattsPerKg = lap.Watts / kgs;
+                                    }
                                     lap.Intensity = tcxLap[iv].Intensity;
                                     lap.TriggerMethod = tcxLap[iv].TriggerMethod;
 
@@ -223,6 +253,7 @@ namespace functions
                                                 if (tcxTrackpoint[vi].TcxHeartRateBpm[vii].HeartRateBpmValue > highestHr){
                                                     highestHr = tcxTrackpoint[vi].TcxHeartRateBpm[vii].HeartRateBpmValue;
                                                     highestHrMarker = tcxTrackpoint[vi].DistanceMeters;
+                                                    highestHrMeters = tcxTrackpoint[vi].DistanceMeters;
                                                 }    
                                             }
                                         }
@@ -259,29 +290,32 @@ namespace functions
                                     }
 
                                     lap.FastestSpeed = fastestSpeed;
+                                    lap.FastestMeters = fastestMeters;
                                     lap.FastestKm = fastestKm;
                                     lap.HighestHr = highestHr;
                                     lap.AverageHr = averageHr;
                                     lap.FastestKmMarker = fastestKmMarker;
                                     lap.FastestSpeedMarker = fastestSpeedMarker;
                                     lap.HighestHrMarker = highestHrMarker;
+                                    lap.HighestHrMeters = highestHrMeters;
                                     
                                     await SetDatabaseDataLap(lap);
                                     
-                                    for(int v = 0; v < tcxTrack.Count; v++) {
+                                    for(int t = 0; t < tcxTrack.Count; t++) {
                                         
-                                        List<TcxTrackpoint> tcxTrackpoint = tcxTrack[v].TcxTrackpoint;
+                                        List<TcxTrackpoint> tcxTrackpoint = tcxTrack[t].TcxTrackpoint;
+
                                         int tcxCount = 0;
                                         double lastSeconds = 0;
                                         double lastDistanceMeters = 0;
-                                        
-                                        for(int vi = 0; vi < tcxTrackpoint.Count; vi++) {
+
+                                        for(int u = 0; u < tcxTrackpoint.Count; u++) {
 
                                             tcxCount = tcxCount + 1;
                                             
                                             bool createTcx = false;
 
-                                            DateTimeOffset dto = DateTimeOffset.Parse(tcxTrackpoint[vi].TrackPointTime, CultureInfo.InvariantCulture);
+                                            DateTimeOffset dto = DateTimeOffset.Parse(tcxTrackpoint[u].TrackPointTime, CultureInfo.InvariantCulture);
                                             DateTime dt = dto.UtcDateTime;
                                             double currentSeconds = dt.TimeOfDay.TotalSeconds;
 
@@ -289,7 +323,7 @@ namespace functions
                                                 createTcx = true;
                                             }
                                             else {
-                                                if (currentSeconds > (lastSeconds + aggregationDurationSeconds)) {
+                                                if (currentSeconds >= (lastSeconds + aggregationDurationSeconds)) {
                                                     createTcx = true;
                                                 }
                                                 else {
@@ -299,45 +333,67 @@ namespace functions
 
                                             double speed = 0;
                                             if (lastSeconds > 0){
-                                                speed = ( ( tcxTrackpoint[vi].DistanceMeters - lastDistanceMeters ) * ( 3600 / (currentSeconds - lastSeconds)) ) / 1000;
+                                                speed = ( ( tcxTrackpoint[u].DistanceMeters - lastDistanceMeters ) * ( 3600 / (currentSeconds - lastSeconds)) ) / 1000;
                                             }
                                             else {
-                                                speed = ( ( tcxTrackpoint[vi].DistanceMeters - lastDistanceMeters ) * ( 3600 / (aggregationDurationSeconds)) ) / 1000;
+                                                speed = ( ( tcxTrackpoint[u].DistanceMeters - lastDistanceMeters ) * ( 3600 / (aggregationDurationSeconds)) ) / 1000;
                                             }
 
                                             bool fastestTcx = false;
+                                            bool highestHrTcx = false;
 
-                                            if (fastestMeters.Equals(tcxTrackpoint[vi].DistanceMeters)){
+                                            if (fastestMeters.Equals(tcxTrackpoint[u].DistanceMeters)){
                                                 createTcx = true;
                                                 fastestTcx = true;
+                                                speed = fastestSpeed;
+                                            }
+
+                                             if (highestHrMeters.Equals(tcxTrackpoint[u].DistanceMeters)){
+                                                createTcx = true;
+                                                highestHrTcx = true;
                                             }
 
                                             if (createTcx.Equals(true) || fastestTcx.Equals(true)) {
 
-                                                tcxTrackpoint[vi].Id = Guid.NewGuid();
-                                                tcxTrackpoint[vi].RootId = rootClass.Id;
-                                                tcxTrackpoint[vi].LapId = lap.Id;
-                                                tcxTrackpoint[vi].CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
-                                                tcxTrackpoint[vi].Speed = speed;
-
-                                                if (speed.Equals(fastestSpeed) || fastestTcx.Equals(true)){
-                                                    tcxTrackpoint[vi].Fastest = true;
+                                                tcxTrackpoint[u].Id = Guid.NewGuid();
+                                                tcxTrackpoint[u].RootId = rootClass.Id;
+                                                tcxTrackpoint[u].LapId = lap.Id;
+                                                tcxTrackpoint[u].CreateDate = DateTime.Now.ToString("yyyyMMddHHmmss");
+                                                tcxTrackpoint[u].Speed = speed;
+                                                tcxTrackpoint[u].TotalTimeSeconds = currentSeconds - lastSeconds;
+                                                
+                                                for(int w = 0; w < tcxTrackpoint[u].TcxHeartRateBpm.Count; w++) {
+                                                    tcxTrackpoint[u].HeartRate = tcxTrackpoint[u].TcxHeartRateBpm[w].HeartRateBpmValue;
+                                                    tcxTrackpoint[u].Calories = ((currentSeconds - lastSeconds)/60) * ((.6309 * tcxTrackpoint[u].HeartRate) + (.1988 * kgs) + (.2017 * age) - 55.0969) / 4.184;
+                                                    tcxTrackpoint[u].Watts = ( tcxTrackpoint[u].Calories/3.6 ) / ( ((currentSeconds - lastSeconds)/60) / 60 );
+                                                }    
+                                            
+                                                if (fastestTcx.Equals(true)){
+                                                    tcxTrackpoint[u].Fastest = true;
                                                 }
                                                 else {
-                                                    tcxTrackpoint[vi].Fastest = false;
+                                                    tcxTrackpoint[u].Fastest = false;
                                                 }
 
-                                                if (tcxTrackpoint[vi].DistanceMeters >= fastestKmMarker && tcxTrackpoint[vi].DistanceMeters <= (fastestKmMarker + 1000)){
-                                                    tcxTrackpoint[vi].FastestKm = true;
+                                                if (tcxTrackpoint[u].DistanceMeters >= fastestKmMarker && tcxTrackpoint[u].DistanceMeters <= (fastestKmMarker + 1000)){
+                                                    tcxTrackpoint[u].FastestKm = true;
                                                 }
                                                 else {
-                                                    tcxTrackpoint[vi].FastestKm = false;
+                                                    tcxTrackpoint[u].FastestKm = false;
                                                 }
 
-                                                lastDistanceMeters = tcxTrackpoint[vi].DistanceMeters;
+                                                if (highestHrTcx.Equals(true)){
+                                                    tcxTrackpoint[u].HighestHr = true;
+                                                    tcxTrackpoint[u].HeartRate = highestHr;
+                                                }
+                                                else {
+                                                    tcxTrackpoint[u].HighestHr = false;
+                                                }
+
+                                                lastDistanceMeters = tcxTrackpoint[u].DistanceMeters;
                                                 lastSeconds = currentSeconds;
 
-                                                await SetDatabaseDataTcxTrackpoint(tcxTrackpoint[vi]);
+                                                await SetDatabaseDataTcxTrackpoint(tcxTrackpoint[u]);
                                                 
                                             }
                                         }

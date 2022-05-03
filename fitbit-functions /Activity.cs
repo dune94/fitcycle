@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
 namespace Fitbit {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class MinutesInHeartRateZone
     {
         [JsonProperty(PropertyName = "minuteMultiplier")]
@@ -142,6 +140,8 @@ namespace Fitbit {
         public Source Source { get; set; }
         [JsonProperty(PropertyName = "speed")]
         public double? Speed { get; set; }
+        [JsonProperty(PropertyName = "watts")]
+        public double? Watts { get; set; }
     }
 
     public class Pagination
@@ -237,6 +237,10 @@ namespace Fitbit {
         public double DistanceKms { get; set; }
         [JsonProperty(PropertyName = "Calories")]
         public int Calories { get; set; }
+        [JsonProperty(PropertyName = "Watts")]
+        public double Watts { get; set; }
+        [JsonProperty(PropertyName = "WattsPerKg")]
+        public double WattsPerKg { get; set; }
         [JsonProperty(PropertyName = "Intensity")]
         public string Intensity { get; set; }
         [JsonProperty(PropertyName = "TriggerMethod")]
@@ -253,13 +257,22 @@ namespace Fitbit {
         public double FastestKm { get; set; }
         [JsonProperty(PropertyName = "FastestKmMarker")]
         public double FastestKmMarker { get; set; }
+        [JsonProperty(PropertyName = "FastestMeters")]
+        public double FastestMeters { get; set; }
         [JsonProperty(PropertyName = "HighestHr")]
         public double HighestHr { get; set; }
         [JsonProperty(PropertyName = "HighestHrMarker")]
         public double HighestHrMarker { get; set; }
+        [JsonProperty(PropertyName = "HighestHrMeters")]
+        public double HighestHrMeters { get; set; }
         [JsonProperty(PropertyName = "AverageHr")]
         public double AverageHr { get; set; }
-
+        [JsonProperty(PropertyName = "AverageSpeed")]
+        public double AverageSpeed { get; set; }
+        [JsonProperty(PropertyName = "HighestWattsMarker")]
+        public double HighestWattsMarker { get; set; }
+        [JsonProperty(PropertyName = "HighestWatts")]
+        public double HighestWatts { get; set; }
     }
 
     public class TcxTrack
@@ -289,20 +302,14 @@ namespace Fitbit {
         [XmlElement("HeartRateBpm")]
         public List<TcxHeartRateBpm> TcxHeartRateBpm { get; set; }
         public double Speed { get; set; }
+        public double Watts { get; set; }
+        public double HeartRate { get; set; }
+        public double Calories { get; set; }
+        public double TotalTimeSeconds { get; set; }
         public bool Fastest { get; set; }
         public bool FastestKm { get; set; }
-
-    }
-
-    public class Markers
-    {
-        public Guid Id { get; set; }
-        public Guid LapId { get; set; }
-        public Guid RootId { get; set; }
-        public string label { get; set; }
-        public double lat { get; set; }
-        public double lng { get; set; }
-        public string iconUrl { get; set; }
+        public bool HighestHr { get; set; }
+        public bool HighestCalory { get; set; }
     }
 
     public class TcxPosition
@@ -317,25 +324,6 @@ namespace Fitbit {
     {
         [XmlElement("Value")]
         public int HeartRateBpmValue { get; set; }
-    }
-
-    public class Directions 
-    {
-        public Guid Id { get; set; }
-        [JsonProperty("origin")]
-        public Coordinates Origin { get; set; }
-        [JsonProperty("destination")]
-        public Coordinates Destination { get; set; }
-        [JsonProperty("renderOptions")]
-        public RenderOptions RenderOptions { get; set; }
-    }
-
-    public class Coordinates 
-    {
-        [JsonProperty("lat")]
-        public double Lat { get; set; }
-        [JsonProperty("lng")]
-        public double Lng { get; set; }
     }
 
     public class RenderOptions 
@@ -353,8 +341,12 @@ namespace Fitbit {
     public class Polylines 
     {
         public Guid Id { get; set; }
-        [JsonProperty("path")]
-        public List<Paths> Paths { get; set; }
+        [JsonProperty("speedpaths")]
+        public List<Paths> SpeedPaths { get; set; }
+        [JsonProperty("hrpaths")]
+        public List<Paths> HrPaths { get; set; }
+        [JsonProperty("calorypaths")]
+        public List<Paths> CaloryPaths { get; set; }
     }
 
     public class Paths
@@ -376,7 +368,14 @@ namespace Fitbit {
         public double Longitude { get; set; }
         [JsonProperty("fastest")]
         public bool Fastest { get; set; }
+        [JsonProperty("highesthr")]
+        public bool HighestHr { get; set; }
+        [JsonProperty("speed")]
         public string Speed { get; set; }
+        [JsonProperty("heartrate")]
+        public string HeartRate { get; set; }
+        public string Calories { get; set; }
+        public string Watts { get; set; }
         [JsonProperty("icon")]
         public string Icon { get; set; }
     }

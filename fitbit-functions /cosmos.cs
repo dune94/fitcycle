@@ -1,23 +1,16 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Configuration;
 using System.Collections.Generic;
-using System.Net;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Net.Http;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Documents;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Fitbit;
 using Utils;
-using static Utils.RetryHelper;
-
 
 namespace FitbitDatabase
 {
@@ -47,7 +40,6 @@ namespace FitbitDatabase
         private static string containerRootId = "Root";
         private static string containerLapId = "Lap";
         private static string containerTcxTrackpointId = "Trackpoint";
-
         private static int cosmosRuLow = Int32.Parse(Environment.GetEnvironmentVariable("COSMOS_RU_LOW"));
         private static int cosmosRuHigh = Int32.Parse(Environment.GetEnvironmentVariable("COSMOS_RU_HIGH"));
 
@@ -556,7 +548,7 @@ namespace FitbitDatabase
             int polylinesLimit = 100000;
             
             QueryDefinition queryTcxTrackpoint = new QueryDefinition(
-                "SELECT T.id, T.CreateDate, T.RootId, T.LapId, T.Time, T.TcxPosition, T.AltitudeMeters, T.DistanceMeters, T.DistanceKms, T.TcxHeartRateBpm, T.Speed, T.Fastest, T.FastestKm FROM Trackpoint T WHERE T.LapId = @LapIdInput ")
+                "SELECT T.id, T.CreateDate, T.RootId, T.LapId, T.Time, T.TcxPosition, T.AltitudeMeters, T.DistanceMeters, T.DistanceKms, T.TcxHeartRateBpm, T.Speed, T.Fastest, T.FastestKm, T.HeartRate, T.Calories, T.TotalTimeSeconds, T.Watts, T.HighestHr, T.HighestCalory FROM Trackpoint T WHERE T.LapId = @LapIdInput ")
                 .WithParameter("@LapIdInput", lapId);
 
             FeedIterator streamResultSetTcxTrackpoint = containerTcxTrackpoint.GetItemQueryStreamIterator(
@@ -626,7 +618,7 @@ namespace FitbitDatabase
             await this.CreateContainerLapAsync();
 
             QueryDefinition queryLap = new QueryDefinition(
-                "SELECT L.id, L.RootId, L.CreateDate, L.TotalTimeSeconds, L.TotalTimeMinutes, L.DistanceMeters, L.DistanceKms, L.StartTime, L.Calories, L.FastestSpeed, L.FastestSpeedMarker, L.FastestKm, L.FastestKmMarker, L.HighestHr, L.HighestHrMarker, L.AverageHr FROM Lap L ORDER BY L.StartTime DESC");
+                "SELECT L.id, L.RootId, L.CreateDate, L.TotalTimeSeconds, L.TotalTimeMinutes, L.DistanceMeters, L.DistanceKms, L.StartTime, L.Calories, L.FastestSpeed, L.FastestSpeedMarker, L.FastestKm, L.FastestKmMarker, L.HighestHr, L.HighestHrMarker, L.AverageHr, L.HighestWatts, L.HighestWattsMarker, L.Watts, L.WattsPerKg, L.AverageSpeed FROM Lap L ORDER BY L.StartTime DESC");
 
             FeedIterator streamResultSetLap = containerLap.GetItemQueryStreamIterator(
                 queryLap,
@@ -747,19 +739,35 @@ namespace FitbitDatabase
         public static List<Polylines> CopyDynamicPolylines (dynamic dynamicTcx, dynamic dynamicTcxPrevious, int counter, List<Polylines> polylinesList)
         {
 
+            double aggregationDurationSeconds = Double.Parse(Environment.GetEnvironmentVariable("COSMOS_AGGREGATION_DURATION_SECONDS"));
+
             string strokeColor = null;
             string previousStrokeColor = null;
+
+            string strokeHrColor = null;
+            string previousHrStrokeColor = null;
+
+            string strokeCaloryColor = null;
+            string previousCaloryStrokeColor = null;
 
             string forwardIcon = "FORWARD_CLOSED_ARROW";
             string backwardIcon = "BACKWARD_CLOSED_ARROW";
             string computedIcon = "FORWARD_CLOSED_ARROW";
 
             double speed = 0;
+            double heartrate = 0;
+            double calories = 0;
 
             var fastest = (bool)(bool)dynamicTcx.Fastest.ToObject(typeof(bool));
             var fastestKm = (bool)(bool)dynamicTcx.FastestKm.ToObject(typeof(bool));
+            var highestHr = (bool)(bool)dynamicTcx.HighestHr.ToObject(typeof(bool));
             var tcxPositionList = (List<TcxPosition>)dynamicTcx.TcxPosition.ToObject(typeof(List<TcxPosition>));
             var tcxPositionListPrevious = dynamicTcxPrevious == null ? null : (List<TcxPosition>)dynamicTcxPrevious.TcxPosition.ToObject(typeof(List<TcxPosition>));
+
+            heartrate = dynamicTcx.HeartRate;
+            calories = dynamicTcx.Calories;
+
+            double caloriesPerMinute = calories * (60 / aggregationDurationSeconds);
 
             if (!fastestKm){
 
@@ -849,8 +857,92 @@ namespace FitbitDatabase
                 }
             }
 
+            if (dynamicTcx.HeartRate != null) {
+                heartrate = dynamicTcx.HeartRate;
+                if (heartrate > 150){
+                    strokeHrColor = "#68228b";
+                }
+                else if (heartrate > 140){
+                    strokeHrColor = "#9932cc";
+                }
+                else if (heartrate > 130){
+                    strokeHrColor = "#f00";
+                }
+                else if (heartrate > 120){
+                    strokeHrColor = "#ff8c00";
+                }
+                else {
+                    strokeHrColor = "#ffb90f";
+                }
+            }
+            else {
+                strokeHrColor = "#ffb90f";
+            }
+
+            if (dynamicTcxPrevious != null && dynamicTcxPrevious.HeartRate != null) {
+                double? previousHeartRate = dynamicTcxPrevious.HeartRate;
+                if (previousHeartRate > 150){
+                    previousHrStrokeColor = "#68228b";
+                }
+                else if (previousHeartRate > 140){
+                    previousHrStrokeColor = "#9932cc";
+                }
+                else if (previousHeartRate > 130){
+                    previousHrStrokeColor = "#f00";
+                }
+                else if (previousHeartRate > 120){
+                    previousHrStrokeColor = "#ff8c00";
+                }
+                else {
+                    previousHrStrokeColor = "#ffb90f";
+                }
+            }
+
+            if (dynamicTcx.Calories != null) {
+                calories = dynamicTcx.Calories * (60 / aggregationDurationSeconds);
+                if (calories > 15){
+                    strokeCaloryColor = "#68228b";
+                }
+                else if (calories > 13){
+                    strokeCaloryColor = "#9932cc";
+                }
+                else if (calories > 11){
+                    strokeCaloryColor = "#f00";
+                }
+                else if (calories > 9){
+                    strokeCaloryColor = "#ff8c00";
+                }
+                else {
+                    strokeCaloryColor = "#ffb90f";
+                }
+            }
+            else {
+                strokeCaloryColor = "#ffb90f";
+            }
+
+            if (dynamicTcxPrevious != null && dynamicTcxPrevious.Calories != null) {
+                double? previousCalories = dynamicTcxPrevious.Calories * (60 / aggregationDurationSeconds);
+                if (previousCalories > 15){
+                    previousCaloryStrokeColor = "#68228b";
+                }
+                else if (previousCalories > 13){
+                    previousCaloryStrokeColor = "#9932cc";
+                }
+                else if (previousCalories > 11){
+                    previousCaloryStrokeColor = "#f00";
+                }
+                else if (previousCalories > 9){
+                    previousCaloryStrokeColor = "#ff8c00";
+                }
+                else {
+                    previousCaloryStrokeColor = "#ffb90f";
+                }
+            }
+
             bool createPaths = true;
             bool speedChanged = true;
+            bool hrChanged = true;
+            bool caloryChanged = true;
 
             if (strokeColor != null && previousStrokeColor != null && strokeColor.Equals(previousStrokeColor) ) {
                 speedChanged = false;
@@ -865,6 +957,22 @@ namespace FitbitDatabase
                 if (fastestKm != fastestKmPrevious){
                     speedChanged = true;
                 }
+            }
+
+            if (strokeHrColor != null && previousHrStrokeColor != null && strokeHrColor.Equals(previousHrStrokeColor) ) {
+                hrChanged = false;
+            }
+
+            if (previousHrStrokeColor == null){
+                hrChanged = true;
+            }
+
+            if (strokeCaloryColor != null && previousCaloryStrokeColor != null && strokeCaloryColor.Equals(previousCaloryStrokeColor) ) {
+                caloryChanged = false;
+            }
+
+            if (previousHrStrokeColor == null){
+                caloryChanged = true;
             }
 
             for(int i = 0; i < tcxPositionList.Count; i++) {
@@ -889,22 +997,26 @@ namespace FitbitDatabase
                 }
             }
 
-            if (speedChanged.Equals(false) || fastest.Equals(true) || fastestKm.Equals(true)){
+            if ( (speedChanged.Equals(false) && hrChanged.Equals(false) && caloryChanged.Equals(false) ) || fastest.Equals(true) || fastestKm.Equals(true) || highestHr.Equals(true)){
                 
                 for(int a = 0; a < polylinesList.Count; a++) {
                     
                     Polylines polylines = polylinesList[a];
                         
-                    Paths paths = polylines.Paths.FindLast(p => p.Color.Equals(strokeColor));
+                    Paths speedpaths = polylines.SpeedPaths.FindLast(p => p.Color.Equals(strokeColor));
+                    Paths hrpaths = polylines.HrPaths.FindLast(p => p.Color.Equals(strokeHrColor));
+                    Paths calorypaths = polylines.CaloryPaths.FindLast(p => p.Color.Equals(strokeCaloryColor));
 
-                    List<Paths> listPaths = polylines.Paths;
+                    List<Paths> listPaths = polylines.SpeedPaths;
+                    List<Paths> listHrPaths = polylines.HrPaths;
+                    List<Paths> listCaloryPaths = polylines.CaloryPaths;
 
-                    if (paths != null){
+                    if (speedpaths != null){
 
                         createPaths = false;
 
-                        List<Points> pointsList = paths.Points;
-                
+                        List<Points> pointsSpeedList = speedpaths.Points;
+                        
                         for(int b = 0; b < tcxPositionList.Count; b++) {
 
                             dynamic tcxPosition = tcxPositionList[b];
@@ -932,34 +1044,110 @@ namespace FitbitDatabase
                                 points.Speed = Math.Round(speed, 2).ToString();
                             }
 
-                            pointsList.Add(points);
+                            pointsSpeedList.Add(points);
                         
-                            Paths listIndexPaths = listPaths.Where(d=> d.Id == paths.Id).First();
+                            Paths listIndexPaths = listPaths.Where(d=> d.Id == speedpaths.Id).First();
                             var indexPaths = listPaths.IndexOf(listIndexPaths);
 
-                            paths.Points = pointsList;
+                            speedpaths.Points = pointsSpeedList;
 
                             if(indexPaths != -1)
-                                listPaths[indexPaths] = paths;
+                                listPaths[indexPaths] = speedpaths;
 
-                            polylines.Paths = listPaths;
+                            polylines.SpeedPaths = listPaths;
 
-                            Polylines listIndexPolylines= polylinesList.Where(e=> e.Id == polylines.Id).First();
-                            var indexPolylines = polylinesList.IndexOf(listIndexPolylines);
-
-                            if(indexPolylines != -1)
-                                polylinesList[indexPolylines] = polylines;
                         }
                     }
-                }
 
+                    if (hrpaths != null){
+                        
+                        List<Points> pointsHrList = hrpaths.Points;
+                        
+                        for(int b = 0; b < tcxPositionList.Count; b++) {
+
+                            dynamic tcxPosition = tcxPositionList[b];
+
+                            Points hrPoints = new Points();
+                            hrPoints.Latitude = tcxPosition.LatitudeDegrees;
+                            hrPoints.Longitude = tcxPosition.LongitudeDegrees;
+                            hrPoints.HighestHr = highestHr;
+
+                            if (hrPoints.HighestHr){
+                                if (heartrate > 150){
+                                    hrPoints.Icon = "https://maps.google.com/mapfiles/ms/icons/purple.png";
+                                }
+                                else if (heartrate > 140){
+                                    hrPoints.Icon = "https://maps.google.com/mapfiles/ms/icons/red.png";
+                                }
+                                else if (heartrate > 130){
+                                    hrPoints.Icon = "https://maps.google.com/mapfiles/ms/icons/orange.png";
+                                }
+                                else if (heartrate > 120){
+                                    hrPoints.Icon = "https://maps.google.com/mapfiles/ms/icons/yellow.png";
+                                }
+                                else {
+                                    hrPoints.Icon = "https://maps.google.com/mapfiles/ms/icons/blue.png";
+                                }
+                            }
+                            hrPoints.HeartRate = Math.Round(heartrate, 2).ToString();
+
+                            pointsHrList.Add(hrPoints);
+                        
+                            Paths hrlistIndexPaths = listHrPaths.Where(d=> d.Id == hrpaths.Id).First();
+                            var hrindexPaths = listHrPaths.IndexOf(hrlistIndexPaths);
+
+                            hrpaths.Points = pointsHrList;
+
+                            if(hrindexPaths != -1)
+                                listHrPaths[hrindexPaths] = hrpaths;
+
+                            polylines.HrPaths = listHrPaths;
+
+                        }
+                    }
+                        
+                    if (calorypaths != null){
+
+                        List<Points> pointsCaloryList = calorypaths.Points;
+
+                        for(int b = 0; b < tcxPositionList.Count; b++) {
+
+                            dynamic tcxPosition = tcxPositionList[b];
+                            
+                            Points caloryPoints = new Points();
+                            caloryPoints.Latitude = tcxPosition.LatitudeDegrees;
+                            caloryPoints.Longitude = tcxPosition.LongitudeDegrees;
+                            caloryPoints.Calories = Math.Round(calories, 2).ToString();
+
+                            pointsCaloryList.Add(caloryPoints);
+                        
+                            Paths calorylistIndexPaths = listCaloryPaths.Where(d=> d.Id == calorypaths.Id).First();
+                            var caloryindexPaths = listCaloryPaths.IndexOf(calorylistIndexPaths);
+
+                            calorypaths.Points = pointsCaloryList;
+
+                            if(caloryindexPaths != -1)
+                                listCaloryPaths[caloryindexPaths] = calorypaths;
+
+                            polylines.CaloryPaths = listCaloryPaths;
+
+                        }
+                    }
+
+                    Polylines listIndexPolylines= polylinesList.Where(e=> e.Id == polylines.Id).First();
+                    var indexPolylines = polylinesList.IndexOf(listIndexPolylines);
+
+                    if(indexPolylines != -1)
+                        polylinesList[indexPolylines] = polylines;
+
+                }
             }
 
-            if (createPaths.Equals(false) && speedChanged.Equals(false)){
+            if (createPaths.Equals(false) && speedChanged.Equals(false) && hrChanged.Equals(false) && caloryChanged.Equals(false)){
                 return polylinesList;
             }
 
-            if (createPaths.Equals(true) || speedChanged.Equals(true)){
+            if (createPaths.Equals(true) || speedChanged.Equals(true) || hrChanged.Equals(true) || caloryChanged.Equals(true) ){
 
                 if (polylinesList.Count.Equals(0)){
                     Polylines polylines = new Polylines();
@@ -967,36 +1155,87 @@ namespace FitbitDatabase
                     polylines.Id = newId;
                     polylinesList.Add(polylines);
                 }
-
+    
                 for(int a = 0; a < polylinesList.Count; a++) {
                 
                     Polylines polylines = polylinesList[a];
 
-                    List<Paths> pathsList = new List<Paths>();
-                    if (polylines.Paths != null){
-                        pathsList = polylines.Paths;
+                    List<Paths> listPaths = new List<Paths>();
+                    List<Paths> listHrPaths = new List<Paths>();
+                    List<Paths> listCaloryPaths = new List<Paths>();
+
+                    if (polylines.SpeedPaths != null){
+                        listPaths = polylines.SpeedPaths;
                     }
-                    List<Points> pointsList = new List<Points>();
-                    
-                    for(int bb = 0; bb < tcxPositionList.Count; bb++) {
-                        dynamic tcxPosition = tcxPositionList[bb];
+                    if (polylines.HrPaths != null){
+                        listHrPaths = polylines.HrPaths;
+                    }
+                    if (polylines.CaloryPaths != null){
+                        listCaloryPaths = polylines.CaloryPaths;
+                    }
 
-                        Paths paths = new Paths();
-                        Guid newPathId = Guid.NewGuid();
-                        paths.Id = newPathId;
-                        paths.Color = strokeColor;
-                        paths.Icon = computedIcon;
+                    List<Points> pointsSpeedList = new List<Points>();
+                    List<Points> pointsHrList = new List<Points>();
+                    List<Points> pointsCaloryList = new List<Points>();
 
-                        if (tcxPositionListPrevious != null){
+                    if (createPaths.Equals(true) || speedChanged.Equals(true)){
 
-                            for(int bbb = 0; bbb < tcxPositionListPrevious.Count; bbb++) {
+                        for(int bb = 0; bb < tcxPositionList.Count; bb++) {
+                            
+                            dynamic tcxPosition = tcxPositionList[bb];
 
-                                dynamic tcxPositionPrevious = tcxPositionListPrevious[bbb];
+                            Paths speedpaths = new Paths();
+                            Guid newPathId = Guid.NewGuid();
+                            speedpaths.Id = newPathId;
+                            speedpaths.Color = strokeColor;
+                            speedpaths.Icon = computedIcon;
 
-                                Points pointsPrevious = new Points();
-                                pointsPrevious.Latitude = tcxPositionPrevious.LatitudeDegrees;
-                                pointsPrevious.Longitude = tcxPositionPrevious.LongitudeDegrees;
-                                
+                            if (tcxPositionListPrevious != null){
+
+                                for(int bbb = 0; bbb < tcxPositionListPrevious.Count; bbb++) {
+
+                                    dynamic tcxPositionPrevious = tcxPositionListPrevious[bbb];
+
+                                    Points pointsPrevious = new Points();
+                                    pointsPrevious.Latitude = tcxPositionPrevious.LatitudeDegrees;
+                                    pointsPrevious.Longitude = tcxPositionPrevious.LongitudeDegrees;
+                                    
+                                    Points points = new Points();
+                                    points.Latitude = tcxPosition.LatitudeDegrees;
+                                    points.Longitude = tcxPosition.LongitudeDegrees;
+                                    points.Fastest = fastest;
+
+                                    if (points.Fastest){
+                                        if (speed > 40){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/purple.png";
+                                        }
+                                        else if (speed > 35){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/red.png";
+                                        }
+                                        else if (speed > 30){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/orange.png";
+                                        }
+                                        else if (speed > 20){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/yellow.png";
+                                        }
+                                        else {
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/blue.png";
+                                        }
+                                        points.Speed = Math.Round(speed, 2).ToString();
+                                    }
+
+                                    pointsSpeedList.Add(pointsPrevious);
+                                    pointsSpeedList.Add(points);
+                                    speedpaths.Points = pointsSpeedList;
+
+                                    listPaths.Add(speedpaths);
+
+                                    polylines.SpeedPaths = listPaths;
+
+                                }
+                            }
+                            else {
+                                    
                                 Points points = new Points();
                                 points.Latitude = tcxPosition.LatitudeDegrees;
                                 points.Longitude = tcxPosition.LongitudeDegrees;
@@ -1021,55 +1260,173 @@ namespace FitbitDatabase
                                     points.Speed = Math.Round(speed, 2).ToString();
                                 }
 
-                                pointsList.Add(pointsPrevious);
-                                pointsList.Add(points);
-                                paths.Points = pointsList;
+                                pointsSpeedList.Add(points);
+                                speedpaths.Points = pointsSpeedList;
 
-                                pathsList.Add(paths);
+                                listPaths.Add(speedpaths);
 
-                                polylines.Paths = pathsList;
+                                polylines.SpeedPaths = listPaths;
+                            
                             }
                         }
-                        else {
-                                
-                            Points points = new Points();
-                            points.Latitude = tcxPosition.LatitudeDegrees;
-                            points.Longitude = tcxPosition.LongitudeDegrees;
-                            points.Fastest = fastest;
+                    }
 
-                            if (points.Fastest){
-                                if (speed > 40){
-                                    points.Icon = "https://maps.google.com/mapfiles/ms/icons/purple.png";
+                    if (createPaths.Equals(true) || hrChanged.Equals(true)){
+
+                        for(int bbb = 0; bbb < tcxPositionList.Count; bbb++) {
+                            
+                            dynamic tcxPosition = tcxPositionList[bbb];
+
+                            Paths hrpaths = new Paths();
+                            Guid newPathId = Guid.NewGuid();
+                            hrpaths.Id = newPathId;
+                            hrpaths.Color = strokeHrColor;
+                            hrpaths.Icon = computedIcon;
+
+                            if (tcxPositionListPrevious != null){
+
+                                for(int bbbb = 0; bbbb < tcxPositionListPrevious.Count; bbbb++) {
+
+                                    dynamic tcxPositionPrevious = tcxPositionListPrevious[bbbb];
+
+                                    Points pointsPrevious = new Points();
+                                    pointsPrevious.Latitude = tcxPositionPrevious.LatitudeDegrees;
+                                    pointsPrevious.Longitude = tcxPositionPrevious.LongitudeDegrees;
+                                    
+                                    Points points = new Points();
+                                    points.Latitude = tcxPosition.LatitudeDegrees;
+                                    points.Longitude = tcxPosition.LongitudeDegrees;
+                                    points.HighestHr = highestHr;
+
+                                    if (points.HighestHr){
+                                        if (heartrate > 150){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/purple.png";
+                                        }
+                                        else if (heartrate > 140){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/red.png";
+                                        }
+                                        else if (heartrate > 130){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/orange.png";
+                                        }
+                                        else if (heartrate > 120){
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/yellow.png";
+                                        }
+                                        else {
+                                            points.Icon = "https://maps.google.com/mapfiles/ms/icons/blue.png";
+                                        }
+                                    }
+                                    points.HeartRate = Math.Round(heartrate, 2).ToString();
+
+                                    pointsHrList.Add(pointsPrevious);
+                                    pointsHrList.Add(points);
+                                    hrpaths.Points = pointsHrList;
+
+                                    listHrPaths.Add(hrpaths);
+
+                                    polylines.HrPaths = listHrPaths;
+
                                 }
-                                else if (speed > 35){
-                                    points.Icon = "https://maps.google.com/mapfiles/ms/icons/red.png";
-                                }
-                                else if (speed > 30){
-                                    points.Icon = "https://maps.google.com/mapfiles/ms/icons/orange.png";
-                                }
-                                else if (speed > 20){
-                                    points.Icon = "https://maps.google.com/mapfiles/ms/icons/yellow.png";
-                                }
-                                else {
-                                    points.Icon = "https://maps.google.com/mapfiles/ms/icons/blue.png";
-                                }
-                                points.Speed = Math.Round(speed, 2).ToString();
                             }
+                            else {
+                                    
+                                Points points = new Points();
+                                points.Latitude = tcxPosition.LatitudeDegrees;
+                                points.Longitude = tcxPosition.LongitudeDegrees;
+                                points.HighestHr = highestHr;
 
-                            pointsList.Add(points);
-                            paths.Points = pointsList;
+                                if (points.HighestHr){
+                                    if (heartrate > 150){
+                                        points.Icon = "https://maps.google.com/mapfiles/ms/icons/purple.png";
+                                    }
+                                    else if (heartrate > 140){
+                                        points.Icon = "https://maps.google.com/mapfiles/ms/icons/red.png";
+                                    }
+                                    else if (heartrate > 130){
+                                        points.Icon = "https://maps.google.com/mapfiles/ms/icons/orange.png";
+                                    }
+                                    else if (heartrate > 120){
+                                        points.Icon = "https://maps.google.com/mapfiles/ms/icons/yellow.png";
+                                    }
+                                    else {
+                                        points.Icon = "https://maps.google.com/mapfiles/ms/icons/blue.png";
+                                    }
+                                }
+                                points.HeartRate = Math.Round(heartrate, 2).ToString();
 
-                            pathsList.Add(paths);
+                                pointsHrList.Add(points);
+                                hrpaths.Points = pointsHrList;
 
-                            polylines.Paths = pathsList;
+                                listHrPaths.Add(hrpaths);
+
+                                polylines.HrPaths = listHrPaths;
+                            
+                            }
+                        }
+                    }
+
+                    if (createPaths.Equals(true) || caloryChanged.Equals(true)){
+
+                        for(int bbbb = 0; bbbb < tcxPositionList.Count; bbbb++) {
+
+                            dynamic tcxPosition = tcxPositionList[bbbb];
+
+                            Paths calorypaths = new Paths();
+                            Guid newPathId = Guid.NewGuid();
+                            calorypaths.Id = newPathId;
+                            calorypaths.Color = strokeCaloryColor;
+                            calorypaths.Icon = computedIcon;
+
+                            if (tcxPositionListPrevious != null){
+
+                                for(int bbbbb = 0; bbbbb < tcxPositionListPrevious.Count; bbbbb++) {
+
+                                    dynamic tcxPositionPrevious = tcxPositionListPrevious[bbbbb];
+
+                                    Points pointsPrevious = new Points();
+                                    pointsPrevious.Latitude = tcxPositionPrevious.LatitudeDegrees;
+                                    pointsPrevious.Longitude = tcxPositionPrevious.LongitudeDegrees;
+                                    
+                                    Points points = new Points();
+                                    points.Latitude = tcxPosition.LatitudeDegrees;
+                                    points.Longitude = tcxPosition.LongitudeDegrees;
+                                    
+                                    points.Calories = Math.Round(calories, 2).ToString();
+
+                                    pointsCaloryList.Add(pointsPrevious);
+                                    pointsCaloryList.Add(points);
+                                    calorypaths.Points = pointsCaloryList;
+
+                                    listCaloryPaths.Add(calorypaths);
+
+                                    polylines.CaloryPaths = listCaloryPaths;
+
+                                }
+                            }
+                            else {
+                                    
+                                Points points = new Points();
+                                points.Latitude = tcxPosition.LatitudeDegrees;
+                                points.Longitude = tcxPosition.LongitudeDegrees;
+                                
+                                points.Calories = Math.Round(calories, 2).ToString();
+
+                                pointsCaloryList.Add(points);
+                                calorypaths.Points = pointsCaloryList;
+
+                                listHrPaths.Add(calorypaths);
+
+                                polylines.CaloryPaths = listCaloryPaths;
+                            
+                            }
                         }
                     }
 
                     Polylines listIndexPolylines= polylinesList.Where(e=> e.Id == polylines.Id).First();
                     var indexPolylines = polylinesList.IndexOf(listIndexPolylines);
 
-                    if(indexPolylines != -1)
+                    if(indexPolylines != -1) {
                         polylinesList[indexPolylines] = polylines;
+                    }
 
                 }
 
@@ -1103,6 +1460,11 @@ namespace FitbitDatabase
             lap.HighestHr = dynamicLap.HighestHr;
             lap.HighestHrMarker = dynamicLap.HighestHrMarker;
             lap.AverageHr = dynamicLap.AverageHr;
+            lap.AverageSpeed = dynamicLap.AverageSpeed;
+            lap.HighestWatts = dynamicLap.HighestWatts;
+            lap.HighestWattsMarker = dynamicLap.HighestWattsMarker;
+            lap.Watts = dynamicLap.Watts;
+            lap.WattsPerKg = dynamicLap.WattsPerKg;
             
             lap.DistanceKms = Math.Round(lap.DistanceKms, 1);
             lap.FastestSpeed = Math.Round(lap.FastestSpeed, 1);
@@ -1110,8 +1472,13 @@ namespace FitbitDatabase
             lap.FastestKm = Math.Round(lap.FastestKm, 1);
             lap.FastestKmMarker = Math.Round(lap.FastestKmMarker/1000, 0);
             lap.HighestHrMarker = Math.Round(lap.HighestHrMarker/1000, 0);
+            lap.HighestWattsMarker = Math.Round(lap.HighestWattsMarker/1000, 0);
+            lap.HighestWatts = Math.Round(lap.HighestWatts, 1);
             lap.AverageHr = Math.Round(lap.AverageHr, 1);
+            lap.AverageSpeed = Math.Round(lap.AverageSpeed, 1);
             lap.TotalTimeMinutes = Math.Round(lap.TotalTimeMinutes, 1);
+            lap.Watts = Math.Round(lap.Watts, 1);
+            lap.WattsPerKg = Math.Round(lap.WattsPerKg, 1);
 
             lap.DropDown = lap.StartTime.Substring(0, 10) + " " + String.Format("{0:0}", lap.DistanceKms);
 
