@@ -1,4 +1,4 @@
-# fitcycle
+# fitcycle 2.0
 # Fitbit cycling dashboard app (MVP)
 
 ## Purpose
