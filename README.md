@@ -7,7 +7,7 @@ The purpose of this application is to provide an alternate Fitbit Cycling Dashbo
 
 As this is an MVP application, certain future elements to be added include the addition of a date selector, as well as the addition of elevation information. 
 
-## Link to Video
+## Link to Video (v1.0 Edition)
 [Application Overview YouTube](https://www.youtube.com/watch?v=ukVpg2f1Yxg)
 
 ## Link to Architecture Diagram
