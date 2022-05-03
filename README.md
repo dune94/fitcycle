@@ -3,11 +3,11 @@
 
 ## Purpose
 
-The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the Standard dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. The Fitbit Cloud data is ingested into a Cosmos DB set of collections. The Fitbit data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. Once the Cycling data is ingestion, the user can then select a lap, and visualize lap metrics (watts, calories, speed, etc.) and a google (polyline-based) map that is colour coded to provide speed, heartrate, and calories burned performance information. The application also has a suite of graphs for each metric to show lap trends.
+The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the Standard dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. The Fitbit Cloud data is ingested into a Cosmos DB set of collections. The Fitbit data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. Once the Cycling data is ingested, the user can then select a lap, and visualize lap metrics (watts, calories, speed, etc.) and google (polyline-based) maps that are colour-coded to provide speed, heartrate, and calories burned performance information. The application also has a suite of graphs for each metric to show lap trends.
 
 ## Future Versions
 
-As this is an MVP application, certain future elements to be added include the addition of a date selector, as well as the addition of elevation information. 
+As this is an MVP application, certain future elements to be added include the addition of a date selector, map legends, as well as the addition of elevation information.  
 
 ## Link to Video (v1.0 Edition)
 [Application Overview YouTube](https://www.youtube.com/watch?v=ukVpg2f1Yxg)
