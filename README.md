@@ -3,14 +3,9 @@
 
 ## Purpose
 
-The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the boilderplate dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. Initially, if no laps data is detected, the fitbit data is ingested into a Cosmos DB set of collections. The data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. The user can then select a lap, and visualize metrics and a google (polyline-based) map that is colour coded to provide speed performance information.   
+The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the boilderplate dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. Initially, if no laps data is detected, the fitbit data is ingested into a Cosmos DB set of collections. The data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. The user can then select a lap, and visualize metrics and a google (polyline-based) map that is colour coded to provide speed, heartrate, and calories burned performance information.   
 
-## Upcoming Changes
-
-1 - Dashboard enhancement - Addition of Watts information
-2 - Map enhancement - Addition of HR and Watts colour coded map (polylines) - the user can select from one of 3 choices, Speed, Watts, or Heart rate
-3 - Map and Dashboard enhancement - Elevation information
-4 - Map filters - to only show the fastest KM, or the steepest part of the ride, etc.
+As this is an MVP application, certain future elements to be added include the addition of a date selector, as well as the addition of elevation information. 
 
 ## Link to Video
 [Application Overview YouTube](https://www.youtube.com/watch?v=ukVpg2f1Yxg)
