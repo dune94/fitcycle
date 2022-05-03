@@ -1,19 +1,17 @@
-# fitcycle
+# fitcycle 2.0
 # Fitbit cycling dashboard app (MVP)
 
 ## Purpose
 
-The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the boilderplate dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. Initially, if no laps data is detected, the fitbit data is ingested into a Cosmos DB set of collections. The data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. The user can then select a lap, and visualize metrics and a google (polyline-based) map that is colour coded to provide speed performance information.   
+The purpose of this application is to provide an alternate Fitbit Cycling Dashboard. Currently the Standard dashboard for Fitbit is walker or step centric. The application uses a microservices architecture. The Fitbit Cloud data is ingested into a Cosmos DB set of collections. The Fitbit data is currated and improved to provide cycling oriented properties to augment the originating Fitbit dataset. Once the Cycling data is ingested, the user can then select a lap, and visualize lap metrics (watts, calories, speed, etc.) and google (polyline-based) maps that are colour-coded to provide speed, heartrate, and calories burned performance information. The application also has a suite of graphs for each metric to show lap trends.
 
-## Upcoming Changes
+## Future Versions
 
-1 - Dashboard enhancement - Addition of Watts information
-2 - Map enhancement - Addition of HR and Watts colour coded map (polylines) - the user can select from one of 3 choices, Speed, Watts, or Heart rate
-3 - Map and Dashboard enhancement - Elevation information
-4 - Map filters - to only show the fastest KM, or the steepest part of the ride, etc.
+As this is an MVP application, certain future elements to be added include the addition of a date selector, map legends, as well as the addition of elevation information.  
 
-## Link to Video
-[Application Overview YouTube](https://www.youtube.com/watch?v=ukVpg2f1Yxg)
+## Link to Videos (v2.0 Edition)
+* [Part 1 - Application Overview on YouTube](https://youtu.be/Kk4czYSIKYM)
+* [Part 2 - Application Details on YouTube](https://youtu.be/WLDvP3723ZU)
 
 ## Link to Architecture Diagram
 [Architecture](https://viewer.diagrams.net/?tags=%7B%7D&highlight=0000ff&edit=_blank&layers=1&nav=1&title=fitcycle-mvp-architecture.drawio#R5VjZbuIwFP0aNDMPHZGErY8QoEUqLRJd52VkHJO4NXHGcVj69XOdOJCQlEEjKEh9aX2Pl8Tn%2BJ5rUrHs2fJKoMAbcoewill1lhWrWzFNw2qZ8E8hqwRpWo0EcAV19KANMKbvRINVjUbUIWFuoOScSRrkQcx9n2CZw5AQfJEfNuUs%2F9QAuaQAjDFiRfSJOtJL0Fa9usGvCXW99MlGVffMUDpYA6GHHL7IQFavYtmCc5m0ZkubMEVeyksyr%2F9B7%2FrFBPHlPhNqL%2Fbzrxdzaj7hVm8wehh0L4MLLcYcsUhvWL%2BsXKUMEAcI0SEX0uMu9xHrbdCO4JHvEPWYKkSbMTecBwAaAL4SKVdaXRRJDpAnZ0z3hhIJ2VZqAYAZCkOKU7hPWTqsuGNNQsgjgcmObaYnBwmXyB3j9O7VljMP0HxeET4jUqxggCAMSTrPnxGkj5q7HrdRAxpakHJxrg3j9%2BvyzpyT0Z%2BLHnth7db44iRakCWVz5n2i1rqZ11H3aVeOQ5WaeDDdp%2BzQWaWCjfT4iidd1BBSyk0TiVod4TvFzQMbxe12yf%2FPrzGj9GF9TUE3WL7YAqXcvpZgu56yYx9tn03YkgA2O9VzAaDV%2B9MIGy4qjVEkgiK1LoPg8JhWHhUknGAYl4WUE%2FzQqIwSCrclC7Vgfg4feZESLLceeDT3rTO6vJ8qcNFptZpyMuUuRQ7OKHNr1GPzD3rkXVW9lU%2FH%2Fsy%2F8%2B%2FzE80sH01rp3SwMyigb1Hgij7inwsKfdDaLdHZ2lWZu3EbmUV2LN5OOOKsm6nwBj8AAhUE68YhZwQFrDyDxYnSfbcTNYAwm9unFN3kYRlSOpYSfoY9UMxXc8xbZXUheaRmC61nsYpraeas57mntZj5K2n%2BYnWU9vTesxTWk%2BtkDx9KjtUJn7zLSzenr63wZHmVFKiMgz5DvwdQspAtiGJfpyDRa0vUCewqF0%2FgDIsX3HuMuXwNuORpnBt8gXKR5wpuyLhWdJrWKemt1p2ivEKxwwPH0cV9VVmm9W2wIo7LONSu0UrUCG3mGTU9VXhAOKIAEARRjFibd0xo46TWB6BQoAm8VLKUwJOfRnvud6p1LtqLXC5tFjEV1rB34jNGYd1uz5XBaUzhSvuFnQA7Zpb0hWVuyxRzjqacsWrj3IRNU1lA4ggEJZEJchU8Jm6EaX2pBPHVhbrEV8RE4VePBTo5mpE9hqwrf6XUdxqbZlhs6i51SgR3TzWNaLohmtR7wZd%2B0AWV2CohMe9Le54BQTCzdfnuC%2FzDd%2Fq%2FQU%3D)
