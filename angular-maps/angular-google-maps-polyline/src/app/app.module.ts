@@ -21,6 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { GoogleChartsModule } from 'angular-google-charts';
 
@@ -38,6 +39,7 @@ import { GoogleChartsModule } from 'angular-google-charts';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
+    MatRadioModule,
     MatIconModule,
     MatToolbarModule,
     MatProgressBarModule,

@@ -21,8 +21,12 @@ export class AppComponent  {
   // TODO base this on an API call
   zoom: number = environment.zoomLevel;
 
+  selectedMap!: string;
+
   polylines!: Polylines[];
-  paths!: Path[];
+  speedpaths!: Path[];
+  hrpaths!: Path[];
+  calorypaths!: Path[];
   laps!: Laps[];
   fitbitCode!: string;
   selectedLap!: Laps;
@@ -37,6 +41,9 @@ export class AppComponent  {
   fastestkms!: any[];
   highesthrs!: any[];
   averagehrs!: any[];
+  averagespeed!: any[];
+  watts!: any[];
+  wattsperkg!: any[];
 
   // initial center position for the map
   // TODO base this on an API call
@@ -50,7 +57,10 @@ export class AppComponent  {
   fastkmcollapsed!: boolean;
   highhrcollapsed!: boolean;
   avghrcollapsed!: boolean;
-
+  averagespeedcollapsed!: boolean;
+  wattscollapsed!: boolean;
+  wattsperkgcollapsed!: boolean;
+  
   showCalories!: boolean;
   showDistance!: boolean;
   showDuration!: boolean;
@@ -58,11 +68,80 @@ export class AppComponent  {
   showFastestKm!: boolean;
   showHighestHr!: boolean;
   showAverageHr!: boolean;
+  showAverageSpeed!: boolean;
+  showWatts!: boolean;
+  showWattsPerKg!: boolean;
 
   caloryChart = {
     title: 'Calories',
     type: ChartType.ColumnChart,
     data: this.calories,
+    options: {
+      colors: ['#5EB2B3'],
+      chartArea: {width: '50%'},
+      isStacked: true,
+      backgroundColor: {
+        fill:'#FFF030',
+        fillOpacity: 0.8     
+      },
+      animation: {
+        startup : true,
+        duration: 1000,
+        easing: 'out'
+      },
+    },
+    width: 1000,
+    height: 500
+  };
+
+  averageSpeedChart = {
+    title: 'Avg Sp',
+    type: ChartType.ColumnChart,
+    data: this.averagespeed,
+    options: {
+      colors: ['#5EB2B3'],
+      chartArea: {width: '50%'},
+      isStacked: true,
+      backgroundColor: {
+        fill:'#FFF030',
+        fillOpacity: 0.8     
+      },
+      animation: {
+        startup : true,
+        duration: 1000,
+        easing: 'out'
+      },
+    },
+    width: 1000,
+    height: 500
+  };
+
+  wattsChart = {
+    title: 'Watts',
+    type: ChartType.ColumnChart,
+    data: this.watts,
+    options: {
+      colors: ['#5EB2B3'],
+      chartArea: {width: '50%'},
+      isStacked: true,
+      backgroundColor: {
+        fill:'#FFF030',
+        fillOpacity: 0.8     
+      },
+      animation: {
+        startup : true,
+        duration: 1000,
+        easing: 'out'
+      },
+    },
+    width: 1000,
+    height: 500
+  };
+
+  wattsperkgChart = {
+    title: 'Watts/KG',
+    type: ChartType.ColumnChart,
+    data: this.wattsperkg,
     options: {
       colors: ['#5EB2B3'],
       chartArea: {width: '50%'},
@@ -215,24 +294,31 @@ export class AppComponent  {
 
   ngOnInit() {
 
+    this.selectedMap = 'speed';
     this.ingesting = false;
-    this.flex = '14%';
+    this.flex = '10%';
 
     this.calcollapsed = true;
+    this.wattscollapsed = true;
+    this.wattsperkgcollapsed = true;
     this.distcollapsed = true;
     this.durcollapsed = true;
     this.fastcollapsed = true;
     this.fastkmcollapsed = true;
     this.highhrcollapsed = true;
     this.avghrcollapsed = true;
+    this.averagespeedcollapsed = true;
 
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showDuration = true;
     this.showFastest = true;
     this.showFastestKm = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
 
     this.route.queryParams
       .subscribe(params => {
@@ -275,6 +361,18 @@ export class AppComponent  {
               return [lap.StartTime, Number(lap.AverageHr)];
             });
             this.averagehrChart.data = this.averagehrs;
+            this.watts = this.laps.map(lap=>{
+              return [lap.StartTime, Number(lap.Watts)];
+            });
+            this.wattsChart.data = this.watts;
+            this.wattsperkg = this.laps.map(lap=>{
+              return [lap.StartTime, Number(lap.WattsPerKg)];
+            });
+            this.wattsperkgChart.data = this.wattsperkg;
+            this.averagespeed = this.laps.map(lap=>{
+              return [lap.StartTime, Number(lap.AverageSpeed)];
+            });
+            this.averageSpeedChart.data = this.averagespeed;
           });
         }
       }
@@ -282,11 +380,15 @@ export class AppComponent  {
   }
 
   public onLapsSelected() {
+    console.log("onLapsSelected");
     this.appService.getPolylinesLap(this.selectedLap.id).subscribe((data: Polylines[]) => {
       this.polylines = data;
+      console.log(this.polylines);
       for(var i = 0; i < this.polylines.length; i++)
       { 
-        this.paths = this.polylines[i].path;
+        this.speedpaths = this.polylines[i].speedpaths;
+        this.hrpaths = this.polylines[i].hrpaths;
+        this.calorypaths = this.polylines[i].calorypaths;
       }
     });
   }
@@ -294,23 +396,85 @@ export class AppComponent  {
   public caloriesShow() {
     this.flex = '100%';
     this.calcollapsed = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDuration = false;
     this.showDistance = false;
     this.showFastest = false;
     this.showFastestKm = false;
     this.showHighestHr = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public caloriesHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.calcollapsed = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDuration = true;
     this.showDistance = true;
     this.showFastest = true;
     this.showFastestKm = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
+  }
+
+  public wattsShow() {
+    this.flex = '100%';
+    this.wattscollapsed = false;
+    this.showCalories = false;
+    this.showWattsPerKg = false;
+    this.showDuration = false;
+    this.showDistance = false;
+    this.showFastest = false;
+    this.showFastestKm = false;
+    this.showHighestHr = false;
+    this.showAverageHr = false;
+    this.showAverageSpeed = false;
+  }
+
+  public wattsHide() {
+    this.flex = '10%';
+    this.wattscollapsed = true;
+    this.showCalories = true;
+    this.showWattsPerKg = true;
+    this.showDuration = true;
+    this.showDistance = true;
+    this.showFastest = true;
+    this.showFastestKm = true;
+    this.showHighestHr = true;
+    this.showAverageHr = true;
+    this.showAverageSpeed = true;
+  }
+
+  public wattsPerKgShow() {
+    this.flex = '100%';
+    this.wattsperkgcollapsed = false;
+    this.showCalories = false;
+    this.showWatts = false;
+    this.showDuration = false;
+    this.showDistance = false;
+    this.showFastest = false;
+    this.showFastestKm = false;
+    this.showHighestHr = false;
+    this.showAverageHr = false;
+    this.showAverageSpeed = false;
+  }
+
+  public wattsPerKgHide() {
+    this.flex = '10%';
+    this.wattsperkgcollapsed = true;
+    this.showCalories = true;
+    this.showWatts = true;
+    this.showDuration = true;
+    this.showDistance = true;
+    this.showFastest = true;
+    this.showFastestKm = true;
+    this.showHighestHr = true;
+    this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
 
   public distanceShow() {
@@ -318,43 +482,55 @@ export class AppComponent  {
     this.distcollapsed = false;
     this.showDuration = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showFastest = false;
     this.showFastestKm = false;
     this.showHighestHr = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public distanceHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.distcollapsed = true;
     this.showDuration = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showFastest = true;
     this.showFastestKm = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
 
   public durationShow() {
     this.flex = '100%';
     this.durcollapsed = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDistance = false;
     this.showFastest = false;
     this.showFastestKm = false;
     this.showHighestHr = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public durationHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.durcollapsed = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showFastest = true;
     this.showFastestKm = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
   
   public fastestShow() {
@@ -362,21 +538,27 @@ export class AppComponent  {
     this.fastcollapsed = false;
     this.showDuration = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDistance = false;
     this.showFastestKm = false;
     this.showHighestHr = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public fastestHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.fastcollapsed = true;
     this.showDuration = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showFastestKm = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
 
   public fastestKmShow() {
@@ -384,21 +566,27 @@ export class AppComponent  {
     this.fastkmcollapsed = false;
     this.showDuration = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDistance = false;
     this.showFastest = false;
     this.showHighestHr = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public fastestKmHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.fastkmcollapsed = true;
     this.showDuration = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showFastest = true;
     this.showHighestHr = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
 
   public highestHrShow() {
@@ -406,21 +594,27 @@ export class AppComponent  {
     this.highhrcollapsed = false;
     this.showDuration = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDistance = false;
     this.showFastestKm = false;
     this.showFastest = false;
     this.showAverageHr = false;
+    this.showAverageSpeed = false;
   }
 
   public highestHrHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.highhrcollapsed = true;
     this.showDuration = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showFastestKm = true;
     this.showFastest = true;
     this.showAverageHr = true;
+    this.showAverageSpeed = true;
   }
 
   public averageHrShow() {
@@ -428,28 +622,65 @@ export class AppComponent  {
     this.avghrcollapsed = false;
     this.showDuration = false;
     this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
     this.showDistance = false;
     this.showFastestKm = false;
     this.showFastest = false;
     this.showHighestHr = false;
+    this.showAverageSpeed = false;
   }
 
   public averageHrHide() {
-    this.flex = '14%';
+    this.flex = '10%';
     this.avghrcollapsed = true;
     this.showDuration = true;
     this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
     this.showDistance = true;
     this.showFastestKm = true;
     this.showFastest = true;
     this.showHighestHr = true;
+    this.showAverageSpeed = true;
   }
+
+  public averageSpeedShow() {
+    this.flex = '100%';
+    this.averagespeedcollapsed = false;
+    this.showDuration = false;
+    this.showCalories = false;
+    this.showWatts = false;
+    this.showWattsPerKg = false;
+    this.showDistance = false;
+    this.showFastestKm = false;
+    this.showFastest = false;
+    this.showHighestHr = false;
+    this.showAverageHr = false;
+  }
+
+  public averageSpeedHide() {
+    this.flex = '10%';
+    this.averagespeedcollapsed = true;
+    this.showDuration = true;
+    this.showCalories = true;
+    this.showWatts = true;
+    this.showWattsPerKg = true;
+    this.showDistance = true;
+    this.showFastestKm = true;
+    this.showFastest = true;
+    this.showHighestHr = true;
+    this.showAverageHr = true;
+  }
+
 
 }
 
 // just an interface for type safety.
 interface polylinesObject {
   Id: string;
-  path: Path[];
+  speedpaths: Path[];
+  hrpaths: Path[];
+  calorypaths: Path[];
   color: string;
 }

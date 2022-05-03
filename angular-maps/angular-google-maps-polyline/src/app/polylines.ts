@@ -2,5 +2,7 @@ import { Path } from "./path";
 
 export class Polylines {
     Id!: string;
-    path!: Path[];
+    speedpaths!: Path[];
+    hrpaths!: Path[];
+    calorypaths!: Path[];
 }

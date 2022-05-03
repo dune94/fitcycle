@@ -13,11 +13,11 @@
 
 <div fxLayout="row" fxLayoutAlign="start center" class="cards" fxLayoutGap="16px">
   
-  <mat-card class="cal-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="cal-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Calories</h3>
+        <h4>Calories</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -33,11 +33,71 @@
 
   </mat-card>
 
-  <mat-card class="distance-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="average-speed-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Distance</h3>
+        <h4>Average Sp</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.AverageSpeed }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="watts-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Watts</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.Watts }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="wattsperkg-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Watts/Kg</h4>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content>
+      <div class="res-circle-outer">
+        <div class="res-circle">
+          <div class="circle-txt">
+            {{ selectedLap?.WattsPerKg }}
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+
+  </mat-card>
+
+  <mat-card class="distance-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h4>Distance</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -53,11 +113,11 @@
 
   </mat-card>
 
-  <mat-card class="duration-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="duration-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Duration</h3>
+        <h4>Duration</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -73,11 +133,11 @@
 
   </mat-card>
 
-  <mat-card class="averagehr-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="averagehr-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Average HR</h3>
+        <h4>Average HR</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -93,11 +153,11 @@
 
   </mat-card>
 
-  <mat-card class="fastest-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="fastest-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Fastest Speed</h3>
+        <h4>Fastest Sp</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -123,11 +183,11 @@
 
   </mat-card>
 
-  <mat-card class="fastestkm-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="fastestkm-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Fastest KM</h3>
+        <h4>Fastest KM</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -153,11 +213,11 @@
 
   </mat-card>
 
-  <mat-card class="highesthr-card" fxFlex="14%" fxFlex.xs="100%" fxFlex.sm="25%">
+  <mat-card class="highesthr-card" fxFlex="10%" fxFlex.xs="100%" fxFlex.sm="20%">
 
     <mat-card-header>
       <mat-card-title>
-        <h3>Highest HR</h3>
+        <h4>Highest HR</h4>
       </mat-card-title>
     </mat-card-header> 
 
@@ -191,7 +251,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Calories Graph</h4>
+        <h5>Calories Graph</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -213,11 +273,89 @@
 
   </mat-card>
 
+  <mat-card class="average-speed-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showAverageSpeed">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h5>Avg Sp</h5>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!averagespeedcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="averageSpeedChart.type"  
+          [data]="averageSpeedChart.data"  
+          [options]="averageSpeedChart.options"  
+          [width]="averageSpeedChart.width"  
+          [height]="averageSpeedChart.height">  
+        </google-chart> 
+      </div> 
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="averageSpeedShow()">Show</button>
+      <button mat-button (click)="averageSpeedHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="watts-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showWatts">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h5>Watts</h5>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!wattscollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="wattsChart.type"  
+          [data]="wattsChart.data"  
+          [options]="wattsChart.options"  
+          [width]="wattsChart.width"  
+          [height]="wattsChart.height">  
+        </google-chart> 
+      </div> 
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="wattsShow()">Show</button>
+      <button mat-button (click)="wattsHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
+  <mat-card class="wattsperkg-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showWattsPerKg">
+
+    <mat-card-header>
+      <mat-card-title>
+        <h5>Watts/Kg</h5>
+      </mat-card-title>
+    </mat-card-header> 
+
+    <mat-card-content *ngIf="!wattsperkgcollapsed">
+      <div style="width: 100%; height: 500px;" >
+        <google-chart  
+          [type]="wattsperkgChart.type"  
+          [data]="wattsperkgChart.data"  
+          [options]="wattsperkgChart.options"  
+          [width]="wattsperkgChart.width"  
+          [height]="wattsperkgChart.height">  
+        </google-chart> 
+      </div> 
+    </mat-card-content>
+    <mat-card-actions fxFlexAlign="end" align="end">
+      <button mat-button (click)="wattsPerKgShow()">Show</button>
+      <button mat-button (click)="wattsPerKgHide()">Hide</button>
+   </mat-card-actions>
+
+  </mat-card>
+
   <mat-card class="distance-chart-card" [fxFlex]="flex" fxFlex.xs="100%" fxFlex.sm="25%" *ngIf="showDistance">
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Distance Graph</h4>
+        <h5>Distance</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -243,7 +381,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Duration Graph</h4>
+        <h5>Duration</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -270,7 +408,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Average HR Graph</h4>
+        <h5>Average HR</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -296,7 +434,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Fastest Speed Graph</h4>
+        <h5>Fastest Sp</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -322,7 +460,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Fastest Km Graph</h4>
+        <h5>Fastest Km</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -348,7 +486,7 @@
 
     <mat-card-header>
       <mat-card-title>
-        <h4>Highest HR Graph</h4>
+        <h5>Highest HR</h5>
       </mat-card-title>
     </mat-card-header> 
 
@@ -372,13 +510,25 @@
 
 </div>
 
-<agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom">
+<div fxLayout="row" fxLayoutAlign="start left" class="cards" fxLayoutGap="16px">  
+  <mat-card class="radio-card" fxFlex="100%" fxFlex.xs="100%" fxFlex.sm="100%">
+    <mat-card-content>
+      <mat-radio-group class="radio-group" [(ngModel)]="selectedMap">
+        <mat-radio-button class="radio-button" value="speed">Speed</mat-radio-button>
+        <mat-radio-button class="radio-button" value="heartrate">Heart Rate</mat-radio-button>
+        <mat-radio-button class="radio-button" value="calories">Calories</mat-radio-button>
+      </mat-radio-group>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom" *ngIf="selectedMap==='speed'">
   <ng-container>
-    <agm-polyline *ngFor="let path of paths ;let i = index;" [strokeColor]="path.color">
-      <agm-icon-sequence [fixedRotation]="true" [path]="path.icon"></agm-icon-sequence>
-      <agm-polyline-point *ngFor="let point of path.point" [latitude]="point.latitude" [longitude]="point.longitude">
+    <agm-polyline *ngFor="let speedpath of speedpaths ;let i = index;" [strokeColor]="speedpath.color">
+      <agm-icon-sequence [fixedRotation]="true" [path]="speedpath.icon"></agm-icon-sequence>
+      <agm-polyline-point *ngFor="let point of speedpath.point" [latitude]="point.latitude" [longitude]="point.longitude">
         <div *ngIf="point.fastest">
-          <agm-circle [latitude]="point.latitude" [longitude]="point.longitude" [fillOpacity]="0.3" [radius]="400" [fillColor]="path.color"></agm-circle>
+          <agm-circle [latitude]="point.latitude" [longitude]="point.longitude" [fillOpacity]="0.3" [radius]="400" [fillColor]="speedpath.color"></agm-circle>
             <agm-marker 
               [latitude]="point.latitude"
               [longitude]="point.longitude"
@@ -390,6 +540,38 @@
     
             </agm-marker>
         </div>
+      </agm-polyline-point>
+    </agm-polyline>
+  </ng-container>
+</agm-map>
+
+<agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom" *ngIf="selectedMap==='heartrate'">
+  <ng-container>
+    <agm-polyline *ngFor="let hrpath of hrpaths ;let i = index;" [strokeColor]="hrpath.color">
+      <agm-icon-sequence [fixedRotation]="true" [path]="hrpath.icon"></agm-icon-sequence>
+      <agm-polyline-point *ngFor="let point of hrpath.point" [latitude]="point.latitude" [longitude]="point.longitude">
+        <div *ngIf="point.highesthr">
+          <agm-circle [latitude]="point.latitude" [longitude]="point.longitude" [fillOpacity]="0.3" [radius]="400" [fillColor]="hrpath.color"></agm-circle>
+            <agm-marker 
+              [latitude]="point.latitude"
+              [longitude]="point.longitude"
+              [iconUrl]="point.icon"
+              [label]="{fontFamily: 'Helvetica',fontSize: '12px',fontWeight: 'bold',text: point.heartrate,color: '#FDF503'}">
+              <agm-info-window>
+                <strong>Highest Hr</strong>
+              </agm-info-window>
+            </agm-marker>
+        </div>
+      </agm-polyline-point>
+    </agm-polyline>
+  </ng-container>
+</agm-map>
+
+<agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom" *ngIf="selectedMap==='calories'">
+  <ng-container>
+    <agm-polyline *ngFor="let calorypath of calorypaths ;let i = index;" [strokeColor]="calorypath.color">
+      <agm-icon-sequence [fixedRotation]="true" [path]="calorypath.icon"></agm-icon-sequence>
+      <agm-polyline-point *ngFor="let point of calorypath.point" [latitude]="point.latitude" [longitude]="point.longitude">
       </agm-polyline-point>
     </agm-polyline>
   </ng-container>

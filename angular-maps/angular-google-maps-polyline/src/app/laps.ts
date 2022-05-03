@@ -6,6 +6,8 @@ export class Laps {
     TotalTimeSeconds!: number;
     TotalTimeMinutes!: number;
     Calories!: number;
+    Watts!: number;
+    WattsPerKg!: number;
     Intensity!: string;
     TriggerMethod!: string;
     DropDown!: string;
@@ -18,5 +20,8 @@ export class Laps {
     HighestHr!: number;
     HighestHrMarker!: number;
     AverageHr!: number;
+    AverageSpeed!: number;
+    HighestWatts!: number;
+    HighestWattsMarker!: number;
 }
 
